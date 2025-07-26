@@ -6,10 +6,19 @@ It also contains the functions to write the data to an Excel file and to represe
 """
 
 from datetime import datetime
+from kucoin.client import Market
+from openpyxl import Workbook
+from openpyxl import load_workbook
+from datetime import datetime
+import pandas as pd
+from openpyxl.styles import Alignment
+import threading
+import math 
+from openpyxl.utils import get_column_letter
+
 
 #  MarketData
 
-from kucoin.client import Market
 """
     Client to obtain data, we access to kucoin api
 """
@@ -105,10 +114,7 @@ def getNowDate():
 """
     WRITE ON EXCEL THE DATA RETRIEVED
 """
-from openpyxl import Workbook
-from openpyxl import load_workbook
-from datetime import datetime
-import pandas as pd
+
 
 def write_headerpage(ws, coin, interval, start=0, end=0, lastrow=0):	
     ws.append(["coin", "interval", "start", "end", "lastrow"])
@@ -196,8 +202,6 @@ def write_to_excel(data, filename, withHeader=True):
 
     print(f"\nData has been written to {filename}")
 
-
-from openpyxl.styles import Alignment, PatternFill
 
 def write_dataframe_to_excel(dataframe, excel_file):
     # Header
@@ -292,7 +296,6 @@ def getData(coin, interval, start, end, shared_data, writeOnExcel=False):
     MULTI-THREADING
 
 """
-import threading
 
 # Temporalidades en diccionario y su calculo
 temporalities = {
@@ -307,7 +310,6 @@ temporalities = {
         '1month': 1500 * 60 * 60 * 24 * 30
 }
 
-import math 
 
 def multi_threading(start_timestamp, end_timestamp, temporality, coin, writeOnExcel=True):
     """Retrieve the data in multiple threads.
@@ -380,7 +382,6 @@ def multi_threading(start_timestamp, end_timestamp, temporality, coin, writeOnEx
     INDICATORS
 
 """
-from openpyxl.utils import get_column_letter
 
 def getHeader(excelFile):
     """Obtain the header of the Excel file.
@@ -400,32 +401,6 @@ def getHeader(excelFile):
 
     return header
 
-def calculateGapData(excelFile, numValuesRequired):
-    """
-        Calculate the gap data to retrieve the missing data (numValuesRequired) in the excel file
-    
-    Args:
-        excelFile (string): the name of the excel file (ex: btcusdt.xlsx)
-        numValuesRequired (int): the number of values required to calculate the missing data
-        
-    Returns:
-        data (dataFrame): the data of the coin
-    """
-    wb = load_workbook(excelFile)
-    ws = wb.active
-    t1 = ws['A5'].value
-    t2 = ws['A6'].value
-    
-    t3 = int(t2) - int(t1)
-    
-    firstTimestamp = int(t1) - (t3 * numValuesRequired)
-    
-    data = multi_threading(int(firstTimestamp), int(t1)-int(t3), ws['B2'].value, ws['A2'].value, writeOnExcel=False)[0]
-
-    wb.close()
-    
-    return data
-    
 
 def addEMAs(mav, excelFile):
     """ Add EMAs to the values of an excel file
@@ -463,7 +438,7 @@ def addEMAs(mav, excelFile):
 
     # Concatenate the data DataFrame at the beginning of df_excel
     df_excel = pd.concat([data, df_excel], ignore_index=True)
-
+    
     # Add the columns to the dataframe and fill them with 0
     for m in mav:
         df_excel[f'EMA_Close_{m}'] = 0
@@ -498,3 +473,30 @@ def addEMAs(mav, excelFile):
     wb.save(excelFile)
     writer.close()
 
+
+def calculateGapData(excelFile, numValuesRequired):
+    """
+        Calculate the gap data to retrieve the missing data (numValuesRequired) in the excel file
+    
+    Args:
+        excelFile (string): the name of the excel file (ex: btcusdt.xlsx)
+        numValuesRequired (int): the number of values required to calculate the missing data
+        
+    Returns:
+        data (dataFrame): the data of the coin
+    """
+    wb = load_workbook(excelFile)
+    ws = wb.active
+    t1 = ws['A5'].value
+    t2 = ws['A6'].value
+    
+    t3 = int(t2) - int(t1)
+    
+    firstTimestamp = int(t1) - (t3 * numValuesRequired)
+    
+    data = multi_threading(int(firstTimestamp), int(t1)-int(t3), ws['B2'].value, ws['A2'].value, writeOnExcel=False)[0]
+
+    wb.close()
+    
+    return data
+    

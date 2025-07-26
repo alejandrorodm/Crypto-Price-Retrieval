@@ -351,7 +351,7 @@ def añadir_emas():
         """
         ema_valor = entry_ema.get()
         if ema_valor:
-            emas.append(float(ema_valor))
+            emas.append(int(ema_valor))
             entry_ema.delete(0, tk.END)
             print(f"EMA añadida: {ema_valor}")
 
@@ -448,8 +448,7 @@ def obtener_precios():
         tk.messagebox.showinfo("Guardado exitoso", f"Se han guardado correctamente los precios de la moneda {coin} con temporalidad {temporalidad_seleccionada} desde {fecha_inicio_seleccionada} a {fecha_fin_seleccionada} en el archivo {excelFile}")
     
         if graficar_precios.get():
-            g.represent_graphic_excel(excelFile)
-            mkd.plotData(data, coin, temporalidad_seleccionada, startDate, endDate, mav=emas)
+            g.represent_graphic_excel(excelFile, mav=emas)
     else:
         tk.messagebox.showerror("Error", "No se pudo guardar el archivo de precios")
 
@@ -459,3 +458,8 @@ boton_obtener_precios.pack(pady=20)
 
 # Iniciar la aplicación
 ventana.mainloop()
+
+
+# Arreglar problema con imagenes del menu desplegable ¿sera por el png vacio que hemos creado?
+# Comprobar que existen las imagenes de las criptomonedas en la carpeta cryptoimg y manejar el error
+# Dejar seleccionada una temporalidad por defecto en el menu desplegable
