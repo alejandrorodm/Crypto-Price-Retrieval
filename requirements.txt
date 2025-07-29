@@ -1,0 +1,7 @@
+kucoin-python
+openpyxl
+pandas
+mplfinance
+tkcalendar
+Pillow
+customtkinter
