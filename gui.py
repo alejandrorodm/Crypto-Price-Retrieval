@@ -34,7 +34,8 @@ def leer_valores_desde_archivo(filename):
 # Ventana principal (titulo, tamaño)
 ventana = ctk.CTk()
 ventana.title("KuCoin Price Retrieval")
-ventana.geometry("400x750")
+ventana.geometry("400x850")
+ventana.resizable(True, True)
 
 def obtener_identificador_coin(symbol):
     """
@@ -141,12 +142,13 @@ def actualizar_seleccion(valor):
         print(f"Cargando imagen para {valor}...")
         imagen = Image.open(ruta_imagen)
         imagen = imagen.resize((100, 100), Image.Resampling.LANCZOS)  # Redimensionar a 100x100 píxeles
-        imagenes[valor] = ImageTk.PhotoImage(imagen, master=ventana)
+        
+        # Crear una referencia separada para la imagen grande
+        imagen_grande = ImageTk.PhotoImage(imagen, master=ventana)
         
         # Actualizar el Canvas con la nueva imagen
-        canvas_imagen.create_rectangle(0, 0, 130, 130, fill='white')  # Limpiar el Canvas
-        canvas_imagen.create_image(0, 0, anchor='nw', image=imagenes[valor])
-        canvas_imagen.image = imagenes[valor]  # Mantener una referencia a la imagen
+        canvas_imagen.create_image(0, 0, anchor='nw', image=imagen_grande)
+        canvas_imagen.image = imagen_grande  # Mantener una referencia a la imagen grande
 
     print(f"Valor seleccionado: {valor_seleccionado}")
 
